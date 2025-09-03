@@ -30,6 +30,13 @@ app.get("/api/users/:id", (req, res) => {
 
 //Lägg till en användare
 app.post("/api/users", (req, res) => {
+  //error hantering
+  let errors = {
+    message: "",
+    details: "",
+    http_response: {},
+  };
+
   //Kontrollera att req.body finns
   if (!req.body) {
     return res.json({ error: "No data received" });
@@ -44,12 +51,25 @@ app.post("/api/users", (req, res) => {
   let description = req.body.description;
 
   if (!companyname || !jobtitle || !location || !startdate || !description) {
-    return res.json({
-      error:
-        "Company name, job title, location, start date and description are required",
-    });
+    //error meddelande
+    errors.message =
+      "Company name, job title, location, start date and description are required";
+    errors.details =
+      "You must include Company name, job title, location, start date and description";
+
+    //respons
+    errors.http_response.message = "Bad Request";
+    errors.http_response.code = 400;
+    return res.status(400).json(errors);
   }
-  res.json({ message: "User added" });
+  let newUser = {
+    companyname: companyname,
+    jobtitle: jobtitle,
+    location: location,
+    startdate: startdate,
+    enddate: enddate,
+  };
+  res.json({ message: "User added", newUser });
 });
 
 //Uppdatera en användare
