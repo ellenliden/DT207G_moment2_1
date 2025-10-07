@@ -58,61 +58,71 @@ app.get("/api/users", (req, res) => {
 
 //Hämta en specifik användare
 app.get("/api/users/:id", (req, res) => {
-  res.json({ message: "Get user: " + req.params.id });
+  const id = req.params.id;
+  client.query("SELECT * FROM users WHERE id = $1", [id], (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: "Fel vid hämtning av användare: " + err });
+    }
+    if (!result.rows || result.rows.length === 0) {
+      return res.status(404).json({ error: "Ingen användare hittad" });
+    }
+    return res.status(200).json(result.rows[0]);
+  });
 });
 
 //Lägg till en användare
 app.post("/api/users", (req, res) => {
-  //error hantering
-  let errors = {
-    message: "",
-    details: "",
-    http_response: {},
-  };
-
-  //Kontrollera att req.body finns
-  if (!req.body) {
-    return res.json({ error: "No data received" });
-  }
-
-  let companyname = req.body.companyname;
-  let jobtitle = req.body.jobtitle;
-  let location = req.body.location;
-  let startdate = req.body.startdate;
-  let enddate = req.body.enddate;
-  let is_current = req.body.is_current || false;
-  let description = req.body.description;
-
+  // Validering
+  const { companyname, jobtitle, location, startdate, enddate, description } = req.body;
   if (!companyname || !jobtitle || !location || !startdate || !description) {
-    //error meddelande
-    errors.message =
-      "Company name, job title, location, start date and description are required";
-    errors.details =
-      "You must include Company name, job title, location, start date and description";
-
-    //respons
-    errors.http_response.message = "Bad Request";
-    errors.http_response.code = 400;
-    return res.status(400).json(errors);
+    return res.status(400).json({
+      error: "Company name, job title, location, start date och description krävs."
+    });
   }
-  let newUser = {
-    companyname: companyname,
-    jobtitle: jobtitle,
-    location: location,
-    startdate: startdate,
-    enddate: enddate,
-  };
-  res.json({ message: "User added", newUser });
+  const query = `INSERT INTO users (companyname, jobtitle, location, startdate, enddate, description) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`;
+  const values = [companyname, jobtitle, location, startdate, enddate, description];
+  client.query(query, values, (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: "Fel vid skapande av användare: " + err });
+    }
+    return res.status(201).json({ message: "User added", user: result.rows[0] });
+  });
 });
 
 //Uppdatera en användare
 app.put("/api/users/:id", (req, res) => {
-  res.json({ message: "User updated: " + req.params.id });
+  const id = req.params.id;
+  const { companyname, jobtitle, location, startdate, enddate, description } = req.body;
+  if (!companyname || !jobtitle || !location || !startdate || !description) {
+    return res.status(400).json({
+      error: "Company name, job title, location, start date och description krävs."
+    });
+  }
+  const query = `UPDATE users SET companyname=$1, jobtitle=$2, location=$3, startdate=$4, enddate=$5, description=$6 WHERE id=$7 RETURNING *`;
+  const values = [companyname, jobtitle, location, startdate, enddate, description, id];
+  client.query(query, values, (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: "Fel vid uppdatering av användare: " + err });
+    }
+    if (!result.rows || result.rows.length === 0) {
+      return res.status(404).json({ error: "Ingen användare hittad att uppdatera" });
+    }
+    return res.status(200).json({ message: "User updated", user: result.rows[0] });
+  });
 });
 
 //Ta bort en användare
 app.delete("/api/users/:id", (req, res) => {
-  res.json({ message: "User deleted: " + req.params.id });
+  const id = req.params.id;
+  client.query("DELETE FROM users WHERE id = $1 RETURNING *", [id], (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: "Fel vid borttagning av användare: " + err });
+    }
+    if (!result.rows || result.rows.length === 0) {
+      return res.status(404).json({ error: "Ingen användare hittad att ta bort" });
+    }
+    return res.status(200).json({ message: "User deleted", user: result.rows[0] });
+  });
 });
 
 app.listen(port, () => {
