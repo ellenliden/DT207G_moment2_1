@@ -2,12 +2,18 @@
 
 Detta repository innehåller ett REST API byggt med Node.js, Express och PostgreSQL. API:et hanterar arbetserfarenheter (work experience) och innehåller CRUD-funktionalitet (Create, Read, Update, Delete).
 
-## Länk
+## Länk - lokalt
 
 Om du kör API:et lokalt är grundadressen:
 
 ```
-jag ska lägga in länk här när jag publicerat på render.
+http://localhost:3000
+```
+
+## Länk - render
+
+```
+https://dt207g-moment2-1-ph2b.onrender.com
 ```
 
 ## Installation och databas

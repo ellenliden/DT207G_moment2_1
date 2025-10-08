@@ -21,19 +21,27 @@ client.connect((err) => {
 });
 
 //Skapa tabell
-client.query(`
-    CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        companyname VARCHAR(100) NOT NULL,
-        jobtitle VARCHAR(100) NOT NULL,
-        location VARCHAR(100) NOT NULL,
-        startdate DATE NOT NULL,
-        enddate DATE NULL,
-        is_current BOOLEAN DEFAULT FALSE, //detta visar om användaren fortfarande jobbar på företaget
-        description TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-`);
-
-client.end();
+client.query(
+  `
+  CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    companyname VARCHAR(100) NOT NULL,
+    jobtitle VARCHAR(100) NOT NULL,
+    location VARCHAR(100) NOT NULL,
+    startdate DATE NOT NULL,
+    enddate DATE NULL,
+    is_current BOOLEAN DEFAULT FALSE, -- detta visar om användaren fortfarande jobbar på företaget
+    description TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )
+`,
+  (err, res) => {
+    if (err) {
+      console.error("Fel vid skapande av tabell:", err);
+    } else {
+      console.log("Tabellen users finns nu!");
+    }
+    client.end();
+  }
+);

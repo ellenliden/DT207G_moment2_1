@@ -9,13 +9,21 @@
     <h1>TEST</h1>
     <!-- testar api -->
     <h2>Get all users</h2>
-
+    <ul id="user-list"></ul>
     <script>
       getData();
       async function getData() {
         const response = await fetch("http://localhost:3000/api/users");
         const data = await response.json();
-        console.log(data);
+        const list = document.getElementById("user-list");
+        list.innerHTML = "";
+        data.forEach((user) => {
+          const li = document.createElement("li");
+          li.textContent = `${user.companyname} – ${user.jobtitle} (${
+            user.startdate
+          } till ${user.enddate || "pågår"})`;
+          list.appendChild(li);
+        });
       }
     </script>
   </body>
