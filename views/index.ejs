@@ -19,7 +19,9 @@
 
       getData();
       async function getData() {
-        const response = await fetch("http://localhost:3000/api/users");
+        const response = await fetch(
+          "https://dt207g-moment2-1-ph2b.onrender.com/api/users"
+        );
         const data = await response.json();
         const list = document.getElementById("user-list");
         list.innerHTML = "";
