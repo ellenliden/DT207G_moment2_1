@@ -82,13 +82,17 @@ app.post("/api/users", (req, res) => {
         "Company name, job title, location, start date och description krävs.",
     });
   }
-  const query = `INSERT INTO users (companyname, jobtitle, location, startdate, enddate, description) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`;
+  // Bestäm om anställningen är pågående baserat på enddate
+  const isCurrent = !enddate; // true om enddate är null/undefined
+
+  const query = `INSERT INTO users (companyname, jobtitle, location, startdate, enddate, is_current, description) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`;
   const values = [
     companyname,
     jobtitle,
     location,
     startdate,
     enddate,
+    isCurrent,
     description,
   ];
   client.query(query, values, (err, result) => {
@@ -114,13 +118,17 @@ app.put("/api/users/:id", (req, res) => {
         "Company name, job title, location, start date och description krävs.",
     });
   }
-  const query = `UPDATE users SET companyname=$1, jobtitle=$2, location=$3, startdate=$4, enddate=$5, description=$6 WHERE id=$7 RETURNING *`;
+  // Bestäm om anställningen är pågående baserat på enddate
+  const isCurrent = !enddate; // true om enddate är null/undefined
+
+  const query = `UPDATE users SET companyname=$1, jobtitle=$2, location=$3, startdate=$4, enddate=$5, is_current=$6, description=$7 WHERE id=$8 RETURNING *`;
   const values = [
     companyname,
     jobtitle,
     location,
     startdate,
     enddate,
+    isCurrent,
     description,
     id,
   ];
