@@ -6,11 +6,17 @@
     <title>Moment 2</title>
   </head>
   <body>
-    <h1>TEST</h1>
-    <!-- testar api -->
-    <h2>Get all users</h2>
+    <h1>Arbetserfarenheter</h1>
+    <h2>Tidigare anställningar</h2>
     <ul id="user-list"></ul>
     <script>
+      function formatDate(dateString) {
+        if (!dateString) return "pågår";
+        const d = new Date(dateString);
+        if (isNaN(d)) return dateString; // fallback om datumet inte kan tolkas
+        return d.toLocaleDateString("sv-SE");
+      }
+
       getData();
       async function getData() {
         const response = await fetch("http://localhost:3000/api/users");
@@ -19,9 +25,17 @@
         list.innerHTML = "";
         data.forEach((user) => {
           const li = document.createElement("li");
-          li.textContent = `${user.companyname} – ${user.jobtitle} (${
-            user.startdate
-          } till ${user.enddate || "pågår"})`;
+          // Formatera datum till svenska format (YYYY-MM-DD)
+          const formatDate = (dateString) => {
+            if (!dateString) return "pågår";
+            const date = new Date(dateString);
+            return date.toISOString().split("T")[0]; // Tar bara datum-delen
+          };
+
+          const startDate = formatDate(user.startdate);
+          const endDate = formatDate(user.enddate);
+
+          li.textContent = `${user.companyname} – ${user.jobtitle} (${startDate} till ${endDate})`;
           list.appendChild(li);
         });
       }
